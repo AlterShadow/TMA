@@ -8,7 +8,7 @@ import "./App.css";
 
 function App() {
   return (
-    <div className="max-w-[480px] mx-auto h-full">
+    <Router>
       <TonConnectUIProvider
         manifestUrl="https://ton-connect.github.io/demo-dapp-with-wallet/tonconnect-manifest.json"
         uiPreferences={{ theme: THEME.DARK }}
@@ -40,15 +40,15 @@ function App() {
           twaReturnUrl: "https://t.me/tc_twa_demo_bot/start",
         }}
       >
-        <Router>
+        <div className="flex justify-center w-screen max-w-[420px]">
           <Header />
           <Routes>
             <Route path="/" element={<Dashboard />} />
           </Routes>
           <Footer />
-        </Router>
+        </div>
       </TonConnectUIProvider>
-    </div>
+    </Router>
   );
 }
 
