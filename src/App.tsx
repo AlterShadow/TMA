@@ -1,5 +1,6 @@
 import { styled } from "@mui/material";
 import { Box } from "@mui/system";
+import "./App.css";
 import { createContext, useEffect } from "react";
 import { APP_GRID, ROUTES } from "./consts";
 import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
