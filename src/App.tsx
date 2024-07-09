@@ -1,55 +1,123 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { TonConnectUIProvider, THEME } from "@tonconnect/ui-react";
+import { styled } from "@mui/material";
+import { Box } from "@mui/system";
+import { createContext, useEffect } from "react";
+import { APP_GRID, ROUTES } from "./consts";
+import { Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom";
+import { DeployerPage, Jetton } from "./pages";
+import analytics from "./services/analytics";
+import { Footer } from "./components/footer";
+import { Header } from "./components/header";
+import { useJettonLogo } from "./hooks/useJettonLogo";
+import useNotification from "./hooks/useNotification";
 
-import Header from "./layout/Header";
-import Footer from "./layout/Footer";
-import Dashboard from "./layout/Dashboard";
-import "./App.css";
+analytics.init();
 
-function App() {
-  return (
-    <Router>
-      <TonConnectUIProvider
-        manifestUrl="https://ton-connect.github.io/demo-dapp-with-wallet/tonconnect-manifest.json"
-        uiPreferences={{ theme: THEME.DARK }}
-        walletsListConfiguration={{
-          includeWallets: [
-            {
-              appName: "safepalwallet",
-              name: "SafePal",
-              imageUrl:
-                "https://s.pvcliping.com/web/public_image/SafePal_x288.png",
-              aboutUrl: "https://www.safepal.com/download",
-              jsBridgeKey: "safepalwallet",
-              platforms: ["ios", "android", "chrome", "firefox"],
-            },
-            {
-              appName: "tonwallet",
-              name: "TON Wallet",
-              imageUrl: "https://wallet.ton.org/assets/ui/qr-logo.png",
-              aboutUrl:
-                "https://chrome.google.com/webstore/detail/ton-wallet/nphplpgoakhhjchkkhmiggakijnkhfnd",
-              universalLink: "https://wallet.ton.org/ton-connect",
-              jsBridgeKey: "tonwallet",
-              bridgeUrl: "https://bridge.tonapi.io/bridge",
-              platforms: ["chrome", "android"],
-            },
-          ],
-        }}
-        actionsConfiguration={{
-          twaReturnUrl: "https://t.me/tc_twa_demo_bot/start",
-        }}
-      >
-        <div className="flex justify-center w-screen max-w-[420px]">
-          <Header />
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-          </Routes>
-          <Footer />
-        </div>
-      </TonConnectUIProvider>
-    </Router>
-  );
+const AppWrapper = styled(Box)(() => ({
+  display: "flex",
+  flexDirection: "column",
+  height: "100vh",
+  overflowY: "scroll",
+}));
+
+const FooterBox = styled(Box)(() => ({
+  display: "flex",
+  flex: 1,
+  alignItems: "flex-end",
+  justifyContent: "center",
+}));
+
+const ScreensWrapper = styled(Box)({
+  "*::-webkit-scrollbar": {
+    display: "none",
+  },
+  "*::-webkit-scrollbar-track": {
+    display: "none",
+  },
+  "*::-webkit-scrollbar-thumb": {
+    display: "none",
+  },
+});
+
+const FlexibleBox = styled(Box)(({ theme }) => ({
+  maxWidth: APP_GRID,
+  width: "calc(100% - 50px)",
+  marginLeft: "auto",
+  marginRight: "auto",
+
+  [theme.breakpoints.down("sm")]: {
+    width: "calc(100% - 30px)",
+  },
+}));
+
+export const EnvContext = createContext({
+  isSandbox: false,
+  isTestnet: false,
+});
+
+const PageNotFound = () => {
+  const { showNotification } = useNotification();
+
+  useEffect(() => {
+    showNotification("Page not found", "error");
+  }, []);
+
+  return <Box />;
+};
+
+interface ContentWrapperProps {
+  children?: any;
 }
+
+const ContentWrapper = ({ children }: ContentWrapperProps) => {
+  return (
+    <FlexibleBox>
+      {children}
+      <Outlet />
+    </FlexibleBox>
+  );
+};
+
+const App = () => {
+  const { resetJetton } = useJettonLogo();
+  const location = useLocation();
+
+  useEffect(() => {
+    resetJetton();
+  }, [location.pathname]);
+
+  return (
+    <AppWrapper>
+      <EnvContext.Provider
+        value={{
+          isSandbox: window.location.search.includes("sandbox"),
+          isTestnet: window.location.search.includes("testnet"),
+        }}>
+        <ScreensWrapper>
+          <Routes>
+            <Route
+              path="*"
+              element={
+                <>
+                  <Header />
+                  <Navigate to="/" />
+                  <PageNotFound />
+                </>
+              }
+            />
+            <Route path="/" element={<Header />}>
+              <Route path="/" element={<ContentWrapper />}>
+                <Route path={ROUTES.deployer} element={<DeployerPage />} />
+                <Route path={ROUTES.jettonId} element={<Jetton />} />
+              </Route>
+            </Route>
+          </Routes>
+        </ScreensWrapper>
+      </EnvContext.Provider>
+      <FooterBox mt={5}>
+        {/* <Footer /> */}
+      </FooterBox>
+    </AppWrapper>
+  );
+};
 
 export default App;

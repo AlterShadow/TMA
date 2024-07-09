@@ -7,6 +7,24 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
+    "baseUrl": "./",
+    "rootDir": "./",
+    "paths": {
+      "hooks/*": ["src/hooks/*"],
+      "theme/*": ["src/theme/*"],
+      "consts": ["src/consts"],
+      "assets/*": ["src/assets/*"],
+      "components/*": ["src/components/*"],
+      "helpers": ["src/helpers"],
+      "layout/*": ["src/layout/*"],
+      "lib/*": ["src/lib/*"],
+      "pages/*": ["src/pages/*"],
+      "services/*": ["src/services/*"],
+      "store/*": ["src/store/*"],
+      "utils": ["src/utils"],
+      "theme": ["src/theme"],
+      "App": ["src/App"],
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -19,8 +37,8 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"]
